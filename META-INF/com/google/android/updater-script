@@ -1,10 +1,16 @@
 ui_print("**********************************************");
 ui_print("**      >> forum.xda-developers.com <<      **");
+ui_print("**   '[ROM][unlocked][suez] Lineage-12.1'   **");
+ui_print("**        comment #000 headphone fix        **");
+ui_print("**                  and                     **");
 ui_print("**   '[ROM][unlocked][suez] Lineage-14.1'   **");
 ui_print("**        comment #000 headphone fix        **");
 ui_print("**           created by spelcheck           **");
 ui_print("**********************************************");
 ui_print(" ");
+
+
+# Check for compatible platform.
 
 ui_print("= Checking for SUEZ ..");
 assert(getprop("ro.product.device") == "suez" || getprop("ro.build.product") == "suez");
@@ -13,33 +19,64 @@ ui_print(" ");
 
 ui_print("= Mounting /system ...");
 run_program("/sbin/mount","/system");
-ui_print("  - Placing alsa-utils binaries into /system/xbin");
-ui_print("  - Placing alsa-utils configuration into /system/usr/share/alsa");
-ui_print("  - Installing alsa-utils libasound.so into /system/lib");
-ui_print("  - Installing alsa_trigger script to /system/etc/init.d");
-package_extract_dir("system", "/system");
 
-ui_print("  Setting permissions ...");
-set_perm(0, 0, 0755, "/system/xbin/alsa_amixer");
-set_perm(0, 0, 0755, "/system/xbin/alsa_aplay");
-set_perm(0, 0, 0755, "/system/xbin/alsa_ctl");
-#set_perm_recursive(0, 0, 0755, 0644, "/system/usr/share/alsa");
-set_perm(0, 0, 0755, "/system/etc/init.d/01alsatrigger");
+# Check if already installed, install or uninstall depending.
 
-run_program("/sbin/umount", "/system");
-ui_print("+ Unmounting /system");
-ui_print(" ");
+if
 
-#ui_print("= Mounting /vendor ...");
-#run_program("/sbin/mount","/vendor");
-#ui_print("  - Installing alsa_trigger scripts to /vendor/bin/alsa_trigger");
-#ui_print("  - Installing alsa_trigger configuration to /vendor/etc/alsa_trigger");
+  sha1_check(read_file("/system/etc/init.d/01alsatrigger")) == ""
 
-#package_extract_dir("vendor", "/vendor");
-#ui_print("  - Setting permissions ..");
-#set_perm_recursive(0, 0, 0755, 0755, "/vendor/bin/alsa_trigger");
+then
 
-#ui_print("+ Unmounting /vendor");
-#ui_print(" ");
+  ui_print(" - INSTALLING!
+  ui_print("  - Placing alsa-utils binaries into /system/xbin");
+  ui_print("  - Placing alsa-utils configuration into /system/usr/share/alsa");
+  ui_print("  - Installing alsa-utils libasound.so into /system/lib");
+  ui_print("  - Installing alsa_trigger script to /system/etc/init.d");
+  package_extract_dir("system", "/system");
 
-ui_print("Done!");
+  ui_print(" - Setting permissions ...");
+  set_perm(0, 0, 0755, "/system/xbin/alsa_amixer");
+  set_perm(0, 0, 0755, "/system/xbin/alsa_aplay");
+  set_perm(0, 0, 0755, "/system/xbin/alsa_ctl");
+  #set_perm_recursive(0, 0, 0755, 0644, "/system/usr/share/alsa");
+  set_perm(0, 0, 0755, "/system/etc/init.d/01alsatrigger");
+
+  ui_print("  - Backing up /system/etc/audio_policy.conf [to .atbak] ...");
+  ui_print("  - Backing up /system/vendor/etc/audio_policy.conf [to .atbak] ...");
+  ui_print("  - Removing both audio_policy.conf ...");
+  #rename("/system/etc/audio_policy.conf", "/system/etc/audio_policy.conf.atbak");
+  #rename("/system/vendor/etc/audio_policy.conf", "/system/vendor/etc/audio.policy.conf.atbak");
+
+  run_program("/sbin/umount", "/system");
+  ui_print("+ Unmounting /system");
+  ui_print(" ");
+
+  ui_print("Done! Flash again to UNINSTALL.");
+
+else
+
+  ui_print(" - UNINSTALLING :|
+  ui_print("  - Removing alsa-utils binaries from /system/xbin");
+  ui_print("  - Removing alsa-utils configuration from /system/usr/share/alsa");
+  ui_print("  - Removing alsa-utils libasound.so from /system/lib");
+  ui_print("  - Removing alsa_trigger script from /system/etc/init.d");
+
+  delete("/system/xbin/alsa_amixer");
+  delete("/system/xbin/alsa_aplay");
+  delete("/system/xbin/alsa_ctl");
+  delete_recursive("/system/usr/share/alsa");
+  delete("/system/etc/init.d/01alsatrigger");
+
+  ui_print("  - Restoring /system/etc/audio_policy.conf [from .atbak] ...");
+  ui_print("  - Restoring /system/vendor/etc/audio_policy.conf [from .atbak] ...");
+  #rename("/system/etc/audio_policy.conf.atbak", "/system/etc/audio_policy.conf");
+  #rename("/system/vendor/etc/audio_policy.conf.atbak", "/system/vendor/etc/audio_policy.conf");
+
+  run_program("/sbin/umount", "/system");
+  ui_print("+ Unmounting /system");
+  ui_print(" ");
+
+  ui_print("Done! Flash again to INSTALL.");
+
+endif;
