@@ -17,23 +17,30 @@ assert(getprop("ro.product.device") == "suez" || getprop("ro.build.product") == 
 ui_print("+ Confirmed.");
 ui_print(" ");
 
+# Create and show a progress bar that can go up to 100%
+show_progress(1,0);
+
 ui_print("= Mounting /system ...");
 run_program("/sbin/mount","/system");
+set_progress(0.1);
 
 # Check if already installed, install or uninstall depending.
 
-if
+package_extract_file("scripts/instchk.sh", "/tmp/instchk.sh");
+set_perm(0, 0, 0755, "/tmp/instchk.sh");
+run_program("/tmp/instchk.sh");
 
-  sha1_check(read_file("/system/etc/init.d/01alsatrigger")) == ""
-
-then
-
-  ui_print(" - INSTALLING!
+ifelse(file_getprop("/tmp/insttest", "installed") == "0",
+  (
+  ui_print(" - INSTALLING!");
   ui_print("  - Placing alsa-utils binaries into /system/xbin");
   ui_print("  - Placing alsa-utils configuration into /system/usr/share/alsa");
   ui_print("  - Installing alsa-utils libasound.so into /system/lib");
   ui_print("  - Installing alsa_trigger script to /system/etc/init.d");
+  ui_print("  - Backing up current alsa state to /system/etc/asound.state");
   package_extract_dir("system", "/system");
+  run_program("/system/xbin/alsa_ctl", "store");
+set_progress(0.5);
 
   ui_print(" - Setting permissions ...");
   set_perm(0, 0, 0755, "/system/xbin/alsa_amixer");
@@ -41,27 +48,36 @@ then
   set_perm(0, 0, 0755, "/system/xbin/alsa_ctl");
   #set_perm_recursive(0, 0, 0755, 0644, "/system/usr/share/alsa");
   set_perm(0, 0, 0755, "/system/etc/init.d/01alsatrigger");
+set_progress(0.75);
 
   ui_print("  - Backing up /system/etc/audio_policy.conf [to .atbak] ...");
   ui_print("  - Backing up /system/vendor/etc/audio_policy.conf [to .atbak] ...");
   ui_print("  - Removing both audio_policy.conf ...");
-  #rename("/system/etc/audio_policy.conf", "/system/etc/audio_policy.conf.atbak");
-  #rename("/system/vendor/etc/audio_policy.conf", "/system/vendor/etc/audio.policy.conf.atbak");
+
+run_program("/sbin/busybox", "mv", "/system/etc/audio_policy.conf", "/system/etc/audio_policy.conf.atbak");
+run_program("/sbin/busybox", "mv", "/system/vendor/etc/audio_policy.conf", "/system/vendor/etc/audio_policy.conf.atbak");
+
+set_progress(0.95);
 
   run_program("/sbin/umount", "/system");
   ui_print("+ Unmounting /system");
   ui_print(" ");
 
+set_progress(1);
   ui_print("Done! Flash again to UNINSTALL.");
+  delete("/tmp/instchk.sh", "/tmp/insttest");
 
-else
+  ),
+  (
 
-  ui_print(" - UNINSTALLING :|
+  ui_print(" - UNINSTALLING :|");
+  ui_print("  - Recovering previous alsa state from /system/etc/asound.state");
   ui_print("  - Removing alsa-utils binaries from /system/xbin");
   ui_print("  - Removing alsa-utils configuration from /system/usr/share/alsa");
   ui_print("  - Removing alsa-utils libasound.so from /system/lib");
   ui_print("  - Removing alsa_trigger script from /system/etc/init.d");
 
+  run_program("/system/xbin/alsa_ctl", "restore");
   delete("/system/xbin/alsa_amixer");
   delete("/system/xbin/alsa_aplay");
   delete("/system/xbin/alsa_ctl");
@@ -70,13 +86,15 @@ else
 
   ui_print("  - Restoring /system/etc/audio_policy.conf [from .atbak] ...");
   ui_print("  - Restoring /system/vendor/etc/audio_policy.conf [from .atbak] ...");
-  #rename("/system/etc/audio_policy.conf.atbak", "/system/etc/audio_policy.conf");
-  #rename("/system/vendor/etc/audio_policy.conf.atbak", "/system/vendor/etc/audio_policy.conf");
+run_program("/sbin/busybox", "mv", "/system/etc/audio_policy.conf.atbak", "/system/etc/audio_policy.conf");
+run_program("/sbin/busybox", "mv", "/system/vendor/etc/audio_policy.conf.atbak", "/system/vendor/etc/audio_policy.conf");
 
   run_program("/sbin/umount", "/system");
   ui_print("+ Unmounting /system");
   ui_print(" ");
 
   ui_print("Done! Flash again to INSTALL.");
+  delete("/tmp/instchk.sh", "/tmp/insttest");
 
-endif;
+  )
+);

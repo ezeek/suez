@@ -24,18 +24,17 @@ logcat -c;
 
 # Launch a separate piped logcat grep process to search for the trigger text, then directly send controls to ALSA.
 
-# headsetState=1
+# search: 'newName=h2w newState=1 headsetState=1|newName=h2w newState=2 headsetState=2'
 # Turn on Headset_Speaker_Amp_Switch
 # Mute Speaker_PGAL_GAIN
 # Mute Speaker_PGAR_GAIN
 
-logcat | grep --line-buffered 'newName=h2w newState=1 headsetState=1' | while read line; do alsa_amixer cset name='Headset_Speaker_Amp_Switch' 'On'; 
-alsa_amixer cset name='Speaker_PGAL_GAIN' 'Mute'; alsa_amixer cset name='Speaker_PGAR_GAIN' 'Mute'; done &
+logcat | egrep --line-buffered 'newName=h2w newState=1 headsetState=1|newName=h2w newState=2 headsetState=2' | while read line; do alsa_amixer cset name='Headset_Speaker_Amp_Switch' 'On'; alsa_amixer cset name='Speaker_PGAL_GAIN' 'Mute'; alsa_amixer cset name='Speaker_PGAR_GAIN' 'Mute'; done &
 
-# headsetState=0
+# search: 'newName=h2w newState=0 headsetState=0'
 # Turn off Headset_Speaker_Amp_Switch
 # Set Speaker_PGAL_GAIN to 8Db
 # Set Speaker_PGAR_GAIN to 8Db
 # Turn on Speaker_Amp_Switch 
 
-logcat | grep --line-buffered 'newName=h2w newState=0 headsetState=0' | while read line; do alsa_amixer cset name='Headset_Speaker_Amp_Switch' 'Off'; alsa_amixer cset name='Speaker_PGAL_GAIN' '8Db'; alsa_amixer cset name='Speaker_PGAR_GAIN' '8Db'; alsa_amixer cset name='Speaker_Amp_Switch' 'On'; done &
+logcat | egrep --line-buffered 'newName=h2w newState=0 headsetState=0' | while read line; do alsa_amixer cset name='Headset_Speaker_Amp_Switch' 'Off'; alsa_amixer cset name='Speaker_PGAL_GAIN' '8Db'; alsa_amixer cset name='Speaker_PGAR_GAIN' '8Db'; alsa_amixer cset name='Speaker_Amp_Switch' 'On'; done &
