@@ -1,6 +1,6 @@
 #!/system/bin/sh
 
-version="LOS14 suez - v.000 da[sh]";
+version="LOS12.1/14.1 suez - v.002 da[sh]";
 
 L="log -p i -t alsa_trigger"
 $L " "
@@ -29,7 +29,7 @@ logcat -c;
 # Mute Speaker_PGAL_GAIN
 # Mute Speaker_PGAR_GAIN
 
-logcat | egrep --line-buffered 'newName=h2w newState=1 headsetState=1|newName=h2w newState=2 headsetState=2' | while read line; do alsa_amixer cset name='Headset_Speaker_Amp_Switch' 'On'; alsa_amixer cset name='Speaker_PGAL_GAIN' 'Mute'; alsa_amixer cset name='Speaker_PGAR_GAIN' 'Mute'; done &
+logcat | grep -E --line-buffered 'newName=h2w newState=1 headsetState=1|newName=h2w newState=2 headsetState=2' | while read line; do alsa_amixer cset name='Headset_Speaker_Amp_Switch' 'On'; alsa_amixer cset name='Speaker_PGAL_GAIN' 'Mute'; alsa_amixer cset name='Speaker_PGAR_GAIN' 'Mute'; done &
 
 # search: 'newName=h2w newState=0 headsetState=0'
 # Turn off Headset_Speaker_Amp_Switch
@@ -37,4 +37,4 @@ logcat | egrep --line-buffered 'newName=h2w newState=1 headsetState=1|newName=h2
 # Set Speaker_PGAR_GAIN to 8Db
 # Turn on Speaker_Amp_Switch 
 
-logcat | egrep --line-buffered 'newName=h2w newState=0 headsetState=0' | while read line; do alsa_amixer cset name='Headset_Speaker_Amp_Switch' 'Off'; alsa_amixer cset name='Speaker_PGAL_GAIN' '8Db'; alsa_amixer cset name='Speaker_PGAR_GAIN' '8Db'; alsa_amixer cset name='Speaker_Amp_Switch' 'On'; done &
+logcat | grep -E --line-buffered 'newName=h2w newState=0 headsetState=0' | while read line; do alsa_amixer cset name='Headset_Speaker_Amp_Switch' 'Off'; alsa_amixer cset name='Speaker_PGAL_GAIN' '8Db'; alsa_amixer cset name='Speaker_PGAR_GAIN' '8Db'; alsa_amixer cset name='Speaker_Amp_Switch' 'On'; done &
