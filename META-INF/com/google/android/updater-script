@@ -33,14 +33,23 @@ run_program("/tmp/instchk.sh");
 ifelse(file_getprop("/tmp/insttest", "installed") == "0",
   (
   ui_print(" - INSTALLING!");
+
+  ui_print("  - Backing up /system/etc/audio_policy.conf [to .atbak] ...");
+  ui_print("  - Backing up /system/vendor/etc/audio_policy.conf [to .atbak] ...");
+  ui_print("  - Backing up /system/vendor/etc/mixer_paths.xml [to .atbak] ...");
+  run_program("/sbin/busybox", "mv", "/system/etc/audio_policy.conf", "/system/etc/audio_policy.conf.atbak");
+  run_program("/sbin/busybox", "mv", "/system/vendor/etc/audio_policy.conf", "/system/vendor/etc/audio_policy.conf.atbak");
+  run_program("/sbin/busybox", "mv", "/system/etc/mixer_paths.xml", "/system/etc/mixer_paths.xml.atbak");
+
   ui_print("  - Placing alsa-utils binaries into /system/xbin");
   ui_print("  - Placing alsa-utils configuration into /system/usr/share/alsa");
   ui_print("  - Installing alsa-utils libasound.so into /system/lib");
-  ui_print("  - Installing alsa_trigger script to /system/etc/init.d");
-  ui_print("  - Backing up current alsa state to /system/etc/asound.state");
+  ui_print("  - Installing alsa_trigger (01alsatrigger) script to /system/etc/init.d");
+  ui_print("  - Installing patched /system/etc/audio_policy.conf ...");
+  ui_print("  - Installing patched /system/etc/mixer_paths.xml ...");
   package_extract_dir("system", "/system");
-  run_program("/system/xbin/alsa_ctl", "store");
-set_progress(0.5);
+
+  set_progress(0.5);
 
   ui_print(" - Setting permissions ...");
   set_perm(0, 0, 0755, "/system/xbin/alsa_amixer");
@@ -48,22 +57,21 @@ set_progress(0.5);
   set_perm(0, 0, 0755, "/system/xbin/alsa_ctl");
   #set_perm_recursive(0, 0, 0755, 0644, "/system/usr/share/alsa");
   set_perm(0, 0, 0755, "/system/etc/init.d/01alsatrigger");
-set_progress(0.75);
 
-  ui_print("  - Backing up /system/etc/audio_policy.conf [to .atbak] ...");
-  ui_print("  - Backing up /system/vendor/etc/audio_policy.conf [to .atbak] ...");
-  ui_print("  - Removing both audio_policy.conf ...");
-
-run_program("/sbin/busybox", "mv", "/system/etc/audio_policy.conf", "/system/etc/audio_policy.conf.atbak");
-run_program("/sbin/busybox", "mv", "/system/vendor/etc/audio_policy.conf", "/system/vendor/etc/audio_policy.conf.atbak");
-
-set_progress(0.95);
+  ui_print(" - Backing up current alsa state to /system/usr/share/alsa/asound.original.state");
+  package_extract_file("scripts/alsa_savestate.sh", "/tmp/alsa_savestate.sh");
+  set_perm(0, 0, 0755, "/tmp/alsa_savestate.sh");
+  run_program("/tmp/alsa_savestate.sh");
+  delete("/tmp/alsa_savestate.sh");
+  
+  set_progress(0.75);
 
   run_program("/sbin/umount", "/system");
   ui_print("+ Unmounting /system");
   ui_print(" ");
 
-set_progress(1);
+  set_progress(1);
+
   ui_print("Done! Flash again to UNINSTALL.");
   delete("/tmp/instchk.sh", "/tmp/insttest");
 
@@ -71,13 +79,18 @@ set_progress(1);
   (
 
   ui_print(" - UNINSTALLING :|");
-  ui_print("  - Recovering previous alsa state from /system/etc/asound.state");
+  
+  ui_print("  - Recovering previous alsa state from /system/usr/share/alsa/asound.original.state");
+  package_extract_file("scripts/alsa_restorestate.sh", "/tmp/alsa_restorestate.sh");
+  set_perm(0, 0, 0755, "/tmp/alsa_restorestate.sh");
+  run_program("/tmp/alsa_restorestate.sh");
+  #delete("/tmp/alsa_restorestate.sh");
+  
   ui_print("  - Removing alsa-utils binaries from /system/xbin");
   ui_print("  - Removing alsa-utils configuration from /system/usr/share/alsa");
   ui_print("  - Removing alsa-utils libasound.so from /system/lib");
   ui_print("  - Removing alsa_trigger script from /system/etc/init.d");
 
-  run_program("/system/xbin/alsa_ctl", "restore");
   delete("/system/xbin/alsa_amixer");
   delete("/system/xbin/alsa_aplay");
   delete("/system/xbin/alsa_ctl");
@@ -86,8 +99,10 @@ set_progress(1);
 
   ui_print("  - Restoring /system/etc/audio_policy.conf [from .atbak] ...");
   ui_print("  - Restoring /system/vendor/etc/audio_policy.conf [from .atbak] ...");
-run_program("/sbin/busybox", "mv", "/system/etc/audio_policy.conf.atbak", "/system/etc/audio_policy.conf");
-run_program("/sbin/busybox", "mv", "/system/vendor/etc/audio_policy.conf.atbak", "/system/vendor/etc/audio_policy.conf");
+  ui_print("  - Restoring /system/etc/mixer_paths.xml [from .atbak] ...");
+  run_program("/sbin/busybox", "mv", "/system/etc/audio_policy.conf.atbak", "/system/etc/audio_policy.conf");
+  run_program("/sbin/busybox", "mv", "/system/vendor/etc/audio_policy.conf.atbak", "/system/vendor/etc/audio_policy.conf");
+  run_program("/sbin/busybox", "mv", "/system/etc/mixer_paths.xml.atbak", "/system/etc/mixer_paths.xml");
 
   run_program("/sbin/umount", "/system");
   ui_print("+ Unmounting /system");
