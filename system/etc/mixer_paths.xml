@@ -57,6 +57,7 @@
 	</path>
 
 	<path name="headphone">
+		<!-- As WIRED_HEADSET and WIRED_HEADPHONE are not used in audio_policy.xml, this isn't used.. -->
 		<ctl name="Audio_Amp_Switch" value="On" />
 	</path>
 
