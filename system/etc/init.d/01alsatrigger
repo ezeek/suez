@@ -18,7 +18,7 @@ $L " "
 
 # Send intitial platform-specific commands to ALSA.
 alsa_amixer cset name='Headset_Speaker_Amp_Switch' 'On';
-alsa_amixer cset name='Speaker_Amp_Switch' 'On';
+#alsa_amixer cset name='Speaker_Amp_Switch' 'On';
 
 # Clear logcat so we don't trigger based on stale data.
 logcat -c;
@@ -33,7 +33,7 @@ logcat -c;
 logcat | grep -E --line-buffered 'newName=h2w newState=1 headsetState=1|newName=h2w newState=2 headsetState=2' | while read line; do $L = "TRIGGERED by plug headset/headphone."; alsa_amixer cset name='Headset_Speaker_Amp_Switch' 'On'; alsa_amixer cset name='Speaker_PGAL_GAIN' 'Mute'; alsa_amixer cset name='Speaker_PGAR_GAIN' 'Mute'; done &
 
 # search: 'newName=h2w newState=0 headsetState=0'
-# Turn off Headset_Speaker_Amp_Switch
+# // Turn off Headset_Speaker_Amp_Switch
 # Set Speaker_PGAL_GAIN to 8Db
 # Set Speaker_PGAR_GAIN to 8Db
 # Turn on Speaker_Amp_Switch 
