@@ -52,13 +52,12 @@
 	</path>
 
 	<path name="speaker">
-		<!-- doesn't hurt to reset --><!--ctl name="Speaker_Amp_Switch" value="On"-->
-		<ctl name="Headset_Speaker_Amp_Switch" value="On">
+		<ctl name="Speaker_Amp_Switch" value="On" />
+		<ctl name="Headset_Speaker_Amp_Switch" value="On" />
 	</path>
 
 	<path name="headphone">
-		<!-- bad amp, workaround it -->
-		<!--ctl name="Audio_Amp_Switch" value="On" /-->		
+		<ctl name="Audio_Amp_Switch" value="On" />
 	</path>
 
 	<path name="receiver">
