@@ -1,14 +1,15 @@
-ui_print("**********************************************");
-ui_print("**      >> forum.xda-developers.com <<      **");
-ui_print("**   '[ROM][unlocked][suez] Lineage-12.1'   **");
-ui_print("**        comment #000 headphone fix        **");
-ui_print("**                  and                     **");
-ui_print("**   '[ROM][unlocked][suez] Lineage-14.1'   **");
-ui_print("**        comment #000 headphone fix        **");
-ui_print("**           created by spelcheck           **");
-ui_print("**********************************************");
 ui_print(" ");
-
+ui_print("   __   ALSA  .__   SUEZ - LOS12.1/14.1");
+ui_print(" _/  |________|__| ____   ____   ___________  ");
+ui_print(" \   __\_  __ \  |/ ___\ / ___\_/ __ \_  __ \ ");
+ui_print("  |  |  |  | \/  / /_/  > /_/  >  ___/|  | \/ ");
+ui_print("  |__|  |__|  |__\___  /\___  / \___  >__|    ");
+ui_print("                /_____//_____/      \/        ");
+ui_print(" spelcheck@xda                 v1.0    beta");
+ui_print(" ");
+ui_print(" PLATFORM: SUEZ - LOS12.1/14.1");
+ui_print(" USE: To enable headphone/headset jack audio.");
+ui_print(" ");
 
 # Check for compatible platform.
 

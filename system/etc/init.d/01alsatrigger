@@ -1,6 +1,6 @@
 #!/system/bin/sh
 
-version="LOS12.1/14.1 suez - v.004 da[sh]";
+version="SUEZ - LOS12.1/14.1";
 
 L="log -p i -t alsa_trigger"
 $L " "
@@ -10,7 +10,7 @@ $L " \   __\_  __ \  |/ ___\ / ___\_/ __ \_  __ \ "
 $L "  |  |  |  | \/  / /_/  > /_/  >  ___/|  | \/ "
 $L "  |__|  |__|  |__\___  /\___  / \___  >__|    "
 $L "                /_____//_____/      \/        "
-$L " spelcheck@xda"
+$L " spelcheck@xda                 v1.0    beta"
 $L " "
 
 # @todo - make this a legitimate rc.d service with a pid, start/stop/restart actions
