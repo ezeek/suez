@@ -10,7 +10,7 @@ $L " \   __\_  __ \  |/ ___\ / ___\_/ __ \_  __ \ "
 $L "  |  |  |  | \/  / /_/  > /_/  >  ___/|  | \/ "
 $L "  |__|  |__|  |__\___  /\___  / \___  >__|    "
 $L "                /_____//_____/      \/        "
-$L " spelcheck@xda                 v1.0    beta"
+$L " spelcheck@xda                 v1.1    beta"
 $L " "
 
 # @todo - make this a legitimate rc.d service with a pid, start/stop/restart actions
@@ -19,6 +19,8 @@ $L " "
 # Send intitial platform-specific commands to ALSA.
 # // alsa_amixer cset name='Speaker_Amp_Switch' 'On';
 # // alsa_amixer cset name='Headset_Speaker_Amp_Switch' 'On';
+alsa_amixer cset name='Speaker_PGAL_GAIN' '14Db'; 
+alsa_amixer cset name='Speaker_PGAR_GAIN' '14Db';
 
 # Clear logcat so we don't trigger based on stale data.
 logcat -c;
@@ -34,8 +36,8 @@ logcat | grep -E --line-buffered 'newName=h2w newState=1 headsetState=1|newName=
 
 # search: 'newName=h2w newState=0 headsetState=0'
 # // Turn off Headset_Speaker_Amp_Switch
-# Set Speaker_PGAL_GAIN to 8Db
-# Set Speaker_PGAR_GAIN to 8Db
+# Set Speaker_PGAL_GAIN to 14Db (max is 17Db)
+# Set Speaker_PGAR_GAIN to 14Db (max is 17Db)
 # // Turn on Speaker_Amp_Switch 
 
-logcat | grep -E --line-buffered 'newName=h2w newState=0 headsetState=0' | while read line; do $L = "TRIGGERED by unplug headset/headphone."; alsa_amixer cset name='Speaker_PGAL_GAIN' '8Db'; alsa_amixer cset name='Speaker_PGAR_GAIN' '8Db'; done &
+logcat | grep -E --line-buffered 'newName=h2w newState=0 headsetState=0' | while read line; do $L = "TRIGGERED by unplug headset/headphone."; alsa_amixer cset name='Speaker_PGAL_GAIN' '14Db'; alsa_amixer cset name='Speaker_PGAR_GAIN' '14Db'; done &
